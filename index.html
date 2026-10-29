@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Entry Management System - College Events</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <script src="https://unpkg.com/html5-qrcode/html5-qrcode.min.js"></script>
+<body>
+
+<header>
+    <div class="header-container">
+        <div class="logo-section">
+            <i class="fas fa-qrcode"></i>
+            <h1>Event Entry Management System</h1>
+        </div>
+        <div class="header-controls">
+            <button class="theme-toggle" onclick="toggleDarkMode()" title="Toggle Dark Mode">
+                <i class="fas fa-moon"></i>
+            </button>
+            <div class="user-profile" onclick="toggleProfileMenu()">
+                <i class="fas fa-user-circle"></i>
+                <span id="userName">Guest</span>
+            </div>
+            <div class="profile-menu hidden" id="profileMenu">
+                <a href="#" onclick="showProfileSettings()">Profile Settings</a>
+                <a href="#" onclick="showEventHistory()">My Events</a>
+                <a href="#" onclick="logout()">Logout</a>
+            </div>
+        </div>
+    </div>
+</header>
+
+<nav class="main-nav">
+    <button class="nav-btn" onclick="showSection('home')" data-section="home">
+    <i class="fas fa-home"></i>
+    <span>Home</span>
+</button>
+    <button class="nav-btn" onclick="showSection('adminLogin')" data-section="adminLogin">
+        <i class="fas fa-cog"></i>
+        <span>Admin</span>
+    </button>
+<button class="nav-btn" onclick="showSection('studentLogin')" data-section="studentLogin">
+    <i class="fas fa-user"></i>
+    <span>Student</span>
+</button>
+</button>
+    <button class="nav-btn active" onclick="showSection('user')" data-section="user">
+        <i class="fas fa-user-check"></i>
+        <span>Participant</span>
+    </button>
+    <button class="nav-btn" onclick="showSection('scanner')" data-section="scanner">
+        <i class="fas fa-camera"></i>
+        <span>Scanner</span>
+    </button>
+    <button class="nav-btn" onclick="showSection('events')" data-section="events">
+        <i class="fas fa-calendar"></i>
+        <span>Events</span>
+    </button>
+   
+</nav>
+
+
+
+    
+<section id="home" class="section active">
+    <div class="container" style="text-align:center; padding:50px;">
+        <h2>Welcome to Event System</h2>
+        <p>Select your role</p>
+
+        <div style="margin-top:30px;">
+            <button class="btn-primary" onclick="goToAdmin()">
+                Admin Login
+            </button>
+
+            <button class="btn-secondary" onclick="goToStudent()">
+                Student Login
+            </button>
+        </div>
+    </div>
+</section>
+
+
+
+
+
+
+<!-- nav cha baher sections -->
+
+
+<section id="user" class="section active">
+    <div class="section-header">
+        <h2><i class="fas fa-id-card"></i> Event Registration</h2>
+        <p>Register for college events and get your QR code</p>
+    </div>
+
+    <div class="container">
+        <form id="registrationForm" class="registration-form">
+            <div class="form-group">
+                <label><i class="fas fa-user"></i> Full Name</label>
+                <input type="text" id="fullName" placeholder="Enter your full name" required>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label><i class="fas fa-id-badge"></i> College ID</label>
+                    <input type="text" id="collegeId" placeholder="e.g., C123456" required>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-envelope"></i> Email</label>
+                    <input type="email" id="email" placeholder="your.email@college.edu" required>
+                </div>
+            </div>
+            <div class="form-group">
+                <label><i class="fas fa-calendar-alt"></i> Select Event</label>
+                <select id="eventSelect" required>
+                    <option value="">Choose an event...</option>
+                    <option value="Hackathon 2026">Hackathon 2026</option>
+                    <option value="Tech Fest">Tech Fest</option>
+                    <option value="Coding Competition">Coding Competition</option>
+                    <option value="Seminar">Industry Seminar</option>
+                </select>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label><i class="fas fa-phone"></i> Mobile Number</label>
+                    <input type="tel" id="mobile" placeholder="9876543210" required>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-graduation-cap"></i> Year</label>
+                    <select id="year" required>
+                        <option value="">Select Year</option>
+                        <option value="1st Year">1st Year</option>
+                        <option value="2nd Year">2nd Year</option>
+                        <option value="3rd Year">3rd Year</option>
+                        <option value="4th Year">4th Year</option>
+                    </select>
+                </div>
+            </div>
+            <button type="submit" class="btn-primary">
+                <i class="fas fa-check-circle"></i> Generate QR Code
+            </button>
+        </form>
+
+        <div id="qrDisplay" class="qr-section hidden">
+            <div class="qr-container">
+                <h3><i class="fas fa-check-circle"></i> Registration Successful!</h3>
+                <p class="success-msg">Your QR Code has been generated</p>
+                <div class="qr-box" id="qrCodeBox">
+                    <div class="qr-placeholder">QR-CODE-123456</div>
+                </div>
+                <div class="qr-details">
+                    <p><strong>Participant:</strong> <span id="qrName">-</span></p>
+                    <p><strong>Event:</strong> <span id="qrEvent">-</span></p>
+                    <p><strong>ID:</strong> <span id="qrId">-</span></p>
+                </div>
+                <p class="qr-instruction">📱 Show this QR code at the entry gate</p>
+                <button class="btn-secondary" onclick="downloadQR()">
+                    <i class="fas fa-download"></i> Download QR Code
+                </button>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+
+
+
+
+<!-- EVENTS SECTION -->
+<section id="events" class="section">
+    <div class="section-header">
+        <h2><i class="fas fa-list"></i> Browse Events</h2>
+        <p>Discover and join upcoming college events</p>
+    </div>
+
+    <div class="container">
+        <div class="search-filter">
+            <input type="text" id="eventSearch" placeholder="🔍 Search events..." class="search-box">
+            <select id="eventFilter" class="filter-select">
+                <option value="all">All Events</option>
+                <option value="upcoming">Upcoming</option>
+                <option value="ongoing">Ongoing</option>
+                <option value="completed">Completed</option>
+            </select>
+        </div>
+
+        <div class="events-grid" id="eventsGrid">
+            <div class="event-card" onclick="showEventDetails('Hackathon 2026', 'March 15-17, 2026', 'Tech Park, Building A', '250', '10:00 AM - 6:00 PM', 'A 48-hour coding marathon where teams compete to build innovative solutions to real-world problems.')">
+                <div class="event-header">
+                    <span class="event-badge">Upcoming</span>
+                </div>
+                <h4><i class="fas fa-laptop-code"></i> Hackathon 2026</h4>
+                <p><i class="fas fa-calendar"></i> March 15-17, 2026</p>
+                <p><i class="fas fa-map-marker-alt"></i> Tech Park, Building A</p>
+                <p><i class="fas fa-users"></i> 250+ Participants</p>
+                <button class="btn-register" onclick="event.stopPropagation(); registerEvent('Hackathon 2026')">Register Now</button>
+            </div>
+
+            <div class="event-card" onclick="showEventDetails('Tech Fest', 'Feb 17-19, 2026', 'Main Auditorium', '500', '9:00 AM - 5:00 PM', 'Annual technology festival featuring workshops, competitions, and industry talks.')">
+                <div class="event-header">
+                    <span class="event-badge ongoing">Ongoing</span>
+                </div>
+                <h4><i class="fas fa-graduation-cap"></i> Tech Fest</h4>
+                <p><i class="fas fa-calendar"></i> Feb 17-19, 2026</p>
+                <p><i class="fas fa-map-marker-alt"></i> Main Auditorium</p>
+                <p><i class="fas fa-users"></i> 500+ Participants</p>
+                <button class="btn-register" onclick="event.stopPropagation(); registerEvent('Tech Fest')">Register Now</button>
+            </div>
+
+            <div class="event-card" onclick="showEventDetails('Coding Competition', 'March 22-23, 2026', 'Computer Lab', '100', '2:00 PM - 8:00 PM', 'Individual coding competition testing algorithmic skills and problem-solving abilities.')">
+                <div class="event-header">
+                    <span class="event-badge">Upcoming</span>
+                </div>
+                <h4><i class="fas fa-code"></i> Coding Competition</h4>
+                <p><i class="fas fa-calendar"></i> March 22-23, 2026</p>
+                <p><i class="fas fa-map-marker-alt"></i> Computer Lab</p>
+                <p><i class="fas fa-users"></i> 100+ Participants</p>
+                <button class="btn-register" onclick="event.stopPropagation(); registerEvent('Coding Competition')">Register Now</button>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+
+
+
+<!-- SCANNER SECTION -->
+<section id="scanner" class="section">
+    <div class="section-header">
+        <h2><i class="fas fa-camera"></i> Entry Gate Scanner</h2>
+        <p>Scan participant QR codes for entry verification</p>
+    </div>
+
+    <div class="container">
+        <div class="scanner-container">
+            <div class="camera-box" id="cameraBox">
+                <div id="reader" style="width: 100%; height: 300px;"></div>
+                <p id="scannerText">Camera Scanner</p>
+                <small id="scannerSubtext">Position QR code in front of camera</small>
+            </div>
+
+            <div class="scanner-controls">
+                <button class="btn-primary" id="startScanBtn" onclick="startScanner()">
+                    <i class="fas fa-video"></i> Start Camera
+                </button>
+                <button class="btn-secondary" onclick="stopScanner()">
+                    <i class="fas fa-stop"></i> Stop Camera
+                </button>
+                <button class="btn-secondary" onclick="simulateScan(true)">
+                    <i class="fas fa-check"></i> Simulate Valid Scan
+                </button>
+                <button class="btn-danger" onclick="simulateScan(false)">
+                    <i class="fas fa-times"></i> Simulate Invalid Scan
+                </button>
+            </div>
+        </div>
+
+        <div id="scanResult" class="scan-result hidden"></div>
+
+        <div class="scan-stats">
+            <div class="stat-box">
+                <h4>Entry Count</h4>
+                <p class="stat-number" id="entryCount">0</p>
+            </div>
+            <div class="stat-box">
+                <h4>Denied Entries</h4>
+                <p class="stat-number" id="deniedCount">0</p>
+            </div>
+            <div class="stat-box">
+                <h4>Success Rate</h4>
+                <p class="stat-number" id="successRate">0%</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+
+
+
+<!---create event-->
+<section id="createevent" class="section">
+    <div class="section-header">
+        <h2>Create Event</h2>
+        <p>Add new events for students</p>
+    </div>
+
+    <div class="container">
+        <form id="eventForm" class="registration-form">
+            
+            <div class="form-group">
+                <label>Event Name</label>
+                <input type="text" id="eventName" required>
+            </div>
+
+            <div class="form-group">
+                <label>Date</label>
+                <input type="date" id="eventDate" required>
+            </div>
+
+            <div class="form-group">
+                <label>Location</label>
+                <input type="text" id="eventLocation" required>
+            </div>
+
+            <div class="form-group">
+                <label>Capacity</label>
+                <input type="number" id="eventCapacity" required>
+            </div>
+
+            <button class="btn-primary">Create Event</button>
+        </form>
+    </div>
+</section>
+
+
+
+
+
+
+<!-- ADMIN SECTION -->
+<section id="adminLogin" class="section">
+    <div class="section-header">
+        <h2><i class="fas fa-cog"></i> Admin Panel</h2>
+        <p>Manage events and view analytics</p>
+    </div>
+
+    <div class="container">
+        <div class="admin-login" id="adminLoginBox">
+            <h3>Admin Authentication</h3>
+
+            <!-- ✅ ONLY CHANGE: form -->
+            <form method="POST" action="admin_login.php">
+
+                <div class="form-group">
+                    <label><i class="fas fa-user"></i> Username</label>
+                    <!-- ✅ CHANGE: name add -->
+                    <input type="text" id="adminUsername" name="username" placeholder="Enter admin username" required>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-lock"></i> Password</label>
+                    <!-- ✅ CHANGE: name add -->
+                    <input type="password" id="adminPassword" name="password" placeholder="Enter password" required>
+                </div>
+
+                <!-- ✅ CHANGE: button -->
+                <button type="submit" name="login" class="btn-primary">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </button>
+
+            </form>
+        </div>
+    </div>
+
+
+
+
+        <div class="admin-dashboard hidden" id="adminDashboard">
+            <div class="admin-header">
+                <h3>Dashboard</h3>
+                <button class="btn-secondary" onclick="logoutAdmin()">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+
+            <div class="analytics-grid">
+                <div class="analytics-card">
+                    <div class="card-icon"><i class="fas fa-calendar-check"></i></div>
+                    <h4>Total Events</h4>
+                    <p class="card-number">4</p>
+                </div>
+                <div class="analytics-card">
+                    <div class="card-icon"><i class="fas fa-users"></i></div>
+                    <h4>Total Registrations</h4>
+                    <p class="card-number">1,245</p>
+                </div>
+                <div class="analytics-card">
+                    <div class="card-icon"><i class="fas fa-check-circle"></i></div>
+                    <h4>Entries Today</h4>
+                    <p class="card-number" id="adminEntryCount">0</p>
+                </div>
+                <div class="analytics-card">
+                    <div class="card-icon"><i class="fas fa-chart-pie"></i></div>
+                    <h4>Avg Attendance</h4>
+                    <p class="card-number">78%</p>
+                </div>
+            </div>
+
+            <div class="admin-section">
+                <h3><i class="fas fa-plus-circle"></i> Create New Event</h3>
+                <form id="createEventForm" onsubmit="createEvent(event)" class="create-event-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Event Name</label>
+                            <input type="text" placeholder="Enter event name" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Date</label>
+                            <input type="date" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Location</label>
+                            <input type="text" placeholder="Event location" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Max Capacity</label>
+                            <input type="number" placeholder="Max participants" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-primary">
+                        <i class="fas fa-plus"></i> Create Event
+                    </button>
+                </form>
+            </div>
+
+            <div class="admin-section">
+                <h3><i class="fas fa-table"></i> Recent Registrations</h3>
+                <div class="table-responsive">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>College ID</th>
+                                <th>Event</th>
+                                <th>Year</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="registrationsTable">
+                            <tr>
+                                <td>Rahul Kumar</td>
+                                <td>C123</td>
+                                <td>Tech Fest</td>
+                                <td>3rd Year</td>
+                                <td><span class="status-badge entered">Entered</span></td>
+                                <td><button class="btn-mini">View</button></td>
+                            </tr>
+                            <tr>
+                                <td>Priya Singh</td>
+                                <td>C124</td>
+                                <td>Hackathon</td>
+                                <td>2nd Year</td>
+                                <td><span class="status-badge pending">Pending</span></td>
+                                <td><button class="btn-mini">View</button></td>
+                            </tr>
+                            <tr>
+                                <td>Arjun Patel</td>
+                                <td>C125</td>
+                                <td>Tech Fest</td>
+                                <td>4th Year</td>
+                                <td><span class="status-badge entered">Entered</span></td>
+                                <td><button class="btn-mini">View</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="admin-section">
+                <h3><i class="fas fa-download"></i> Export Data</h3>
+                <div class="export-buttons">
+                    <button class="btn-secondary" onclick="exportCSV()">
+                        <i class="fas fa-file-csv"></i> Download CSV
+                    </button>
+                    <button class="btn-secondary" onclick="exportPDF()">
+                        <i class="fas fa-file-pdf"></i> Download PDF
+                    </button>
+                    <button class="btn-secondary" onclick="printReport()">
+                        <i class="fas fa-print"></i> Print Report
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="modal hidden" id="eventModal">
+    <div class="modal-content">
+        <span class="close" onclick="closeEventModal()">&times;</span>
+        <h2 id="eventModalTitle">Event Details</h2>
+        <div class="event-details">
+            <div class="event-info">
+                <p><i class="fas fa-calendar"></i> <strong>Date:</strong> <span id="eventDate">-</span></p>
+                <p><i class="fas fa-map-marker-alt"></i> <strong>Location:</strong> <span id="eventLocation">-</span></p>
+                <p><i class="fas fa-users"></i> <strong>Capacity:</strong> <span id="eventCapacity">-</span></p>
+                <p><i class="fas fa-clock"></i> <strong>Time:</strong> <span id="eventTime">-</span></p>
+            </div>
+            <div class="event-description">
+                <h3>Description</h3>
+                <p id="eventDescription">This is a great event where participants can learn and network with industry professionals.</p>
+            </div>
+            <div class="event-actions">
+                <button class="btn-primary" onclick="registerFromModal()">Register Now</button>
+                <button class="btn-secondary" onclick="closeEventModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+
+    <!--studentLogin-->
+
+<!--studentLogin-->
+</div>
+<section id="studentLogin" class="section">
+    <div class="section-header">
+        <h2>Student Login</h2>
+        <p>Login to view events</p>
+    </div>
+
+    <div class="container">
+        <form onsubmit="studentLogin(event)" class="registration-form">
+
+            <div class="form-group">
+                <label>Name</label>
+                <input type="text" id="studentName" required>
+            </div>
+
+            <div class="form-group">
+                <label>College ID</label>
+                <input type="text" id="studentId" required>
+            </div>
+
+            <button type="submit" class="btn-primary">
+                Login
+            </button>
+        </form>
+    </div>
+</section>
+
+
+
+
+
+
+
+
+
+<script src="script.js"></script>
+
+</body>
+</html>
+<!-- Notification Toast -->
+<div id="notification" class="notification hidden"></div>
